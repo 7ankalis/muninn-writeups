@@ -105,7 +105,7 @@ We now know that we should look if this website is indeed vulnerable to LFI and 
 
 For LFI, let's try the example given in the task 4:
 
-<figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
 
 This server is indeed vulnerable to LFI since it allowed us to access a file on the system without checking for our input! as already mentioned, this happens due to misuse of some PHP (in our case) function such as include(), include\_once(), require()..etc If the user's input is directly processed without proper checking, LFI and RFI vulnerabilities arise.
 

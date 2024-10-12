@@ -9,6 +9,7 @@
 ## 😅 Under Construction
 
 * [Lame](under-construction/lame.md)
+* [Cap](under-construction/cap.md)
 * [Sightless](under-construction/sightless.md)
 * [PermX](under-construction/permx.md)
 * [Greenhorn](under-construction/greenhorn.md)

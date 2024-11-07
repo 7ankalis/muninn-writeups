@@ -1,3 +1,7 @@
+---
+hidden: true
+---
+
 # Greenhorn
 
 <figure><img src="../.gitbook/assets/image (73).png" alt=""><figcaption></figcaption></figure>

@@ -1,5 +1,15 @@
 # Mr robot
 
+{% hint style="info" %}
+Overall, the box was fun, the enumeration phase takes some time to check the subdomains, files, directories. Etc but it was all fine there weren't any rabbit holes (or maybe we haven't stumbled upon one)
+
+The idea behind the enumeration in this box is the fuzzing in the beginning since we'll get the 1st key path and simple base64 encoded credentials in some hidden file and even a vulnerable version number of a service running on the box.
+
+With the vulnerable version number in hand, the foothold was pretty straight forward using a Command Injection to gain a reverse shell, then cracking a user's hash for lateral movement.
+
+Finally, to root the machine we'll exploit a binary having the SUID bit set and take full control of the box.
+{% endhint %}
+
 ## Enumeration & Footprinting
 
 ### Nmap

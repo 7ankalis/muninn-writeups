@@ -1,5 +1,7 @@
 # Cap
 
+<figure><img src="../.gitbook/assets/image (82).png" alt=""><figcaption></figcaption></figure>
+
 ## Enumeration
 
 Nmap as always, gives 3 ports open : SSH, FTP , HTTP.

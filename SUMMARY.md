@@ -17,14 +17,12 @@
 
 ## THM
 
-* [Mr robot](thm/mr-robot.md)
 * [Wonderland](thm/wonderland.md)
+* [Mr robot](thm/mr-robot.md)
+* [Looking glass](thm/looking-glass.md)
+* [Dogcat](thm/dogcat.md)
 
 ## PWN
 
 * [Toolset](pwn/toolset.md)
 * [BOF Basics](pwn/bof-basics.md)
-
-## THM
-
-* [Dogcat](thm-1/dogcat.md)

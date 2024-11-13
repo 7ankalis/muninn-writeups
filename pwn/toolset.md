@@ -49,15 +49,12 @@ gef➤  x/CountFormatSize <ADDRESS>
 
 For gdb there are good plugins that can helps us through the debugging process to unveil important information like Stack content, registers content...etc. the most famous and maintained ones are GEF, pwndbg, and PEDA .
 
-Here's how to install all three of them:
+#### GEF
 
 ```shell-session
-$ cd ~ && git clone https://github.com/apogiatzis/gdb-peda-pwndbg-gef.git
-$ cd ~/gdb-peda-pwndbg-gef
-$ ./install.sh
+$ wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
+$ echo source ~/.gdbinit-gef.py >> ~/.gdbinit
 ```
-
-Or install the one you prefer:
 
 #### pwndbg
 
@@ -73,18 +70,19 @@ Or through [this link](https://github.com/pwndbg/pwndbg/releases) and t hen the 
 $ apt install ./pwndbg_2023.07.17_amd64.deb
 ```
 
-#### GEF
-
-```shell-session
-$ wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
-$ echo source ~/.gdbinit-gef.py >> ~/.gdbinit
-```
-
 #### PEDA
 
 ```shell-session
 $ git clone https://github.com/longld/peda.git ~/peda
 $ echo "source ~/peda/peda.py" >> ~/.gdbinit
+```
+
+Here's how to install all three of them:
+
+```shell-session
+$ cd ~ && git clone https://github.com/apogiatzis/gdb-peda-pwndbg-gef.git
+$ cd ~/gdb-peda-pwndbg-gef
+$ ./install.sh
 ```
 
 ## Ghidra
@@ -93,6 +91,37 @@ It is important to note that ghidra have both disassembling and hex dumping tool
 
 ```shell-session
 $ sudo apt install ghidra
+```
+
+## File's behavior and exposing potential vulnerabilities&#x20;
+
+### Static analysis
+
+#### File type analysis
+
+Usually at the starting and medium level we won't be needing all of the commands to grasp the idea of what the file is but here's an extended list:
+
+```bash
+$file binary_name           # Basic file type
+$ldd binary_name            # Check shared library dependencies (may reveal useful function libraries)
+$readelf -h binary_name     # Display ELF file header for more detailed format and architecture information
+$readelf -l binary_name     # Show program headers to understand segments loaded into memory
+$readelf -s binary_name     # List symbols (functions, variables) defined in the binary
+$objdump -x binary_name     # Full binary header information and sections
+```
+
+#### File Security
+
+```bash
+$objdump -d binary_name | grep 'call'
+       # Look for direct calls to functions that might be insecure (like `gets` or `system`)
+$checksec --file=binary_name  # From pwntools:$pwn checksec binary_name  equivalent if installed
+
+```
+
+```bash
+$objdump -h binary_name       # Lists sections and their memory addresses, helpful for understanding layout
+$readelf -W --sections binary_name
 ```
 
 {% hint style="info" %}

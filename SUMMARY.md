@@ -19,6 +19,7 @@
 
 * [Wonderland](thm/wonderland.md)
 * [Mr robot](thm/mr-robot.md)
+* [Kenobi](thm/kenobi.md)
 * [Looking glass](thm/looking-glass.md)
 * [Dogcat](thm/dogcat.md)
 

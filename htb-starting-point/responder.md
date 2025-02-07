@@ -4,7 +4,7 @@ description: A very-easy-rated Machine in Starting Point tier 1 category.
 
 # Responder
 
-<figure><img src="../.gitbook/assets/image (12).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (12) (1).png" alt=""><figcaption></figcaption></figure>
 
 ## I. Enumeration & Information gathering:
 
@@ -14,7 +14,7 @@ description: A very-easy-rated Machine in Starting Point tier 1 category.
 └──╼ $nmap 10.129.95.234 -sV -sC -oA nmap-def-initial-scan
 ```
 
-<figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption><p>Default scan results</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (14) (1).png" alt=""><figcaption><p>Default scan results</p></figcaption></figure>
 
 So, we have port 80 open, an Apache server on maybe a windows machine which we will confirm in the next steps.(They already told us that it's a Windows machine but where's the fun?) \
 We should run an Nmap scan on the rest of the ports because by default Nmap only scans the top 1000 ports, so we might miss a LOT if we only take this initial scan as a final result.&#x20;
@@ -40,18 +40,18 @@ I personally use this command:
 
 And finally here's what we find:
 
-<figure><img src="../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (15) (1).png" alt=""><figcaption></figcaption></figure>
 
 Usually at this stage, we use [wappalyzer](https://www.wappalyzer.com/) to give us some more information about the infrastructure of the webpage (Programming languages used, OS..etc) :
 
-<figure><img src="../.gitbook/assets/image (17).png" alt=""><figcaption><p>wappalyzer's output</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (17) (1).png" alt=""><figcaption><p>wappalyzer's output</p></figcaption></figure>
 
 Now that we confirmed that it's a windows machine let's move on.
 
 After poking around the page, we stumbled upon something!  \
 In the process of changing the language of the page we have found a GET parameter named _**page**_
 
-<figure><img src="../.gitbook/assets/image (16).png" alt=""><figcaption><p>A found 'page' parameter</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (16) (1).png" alt=""><figcaption><p>A found 'page' parameter</p></figcaption></figure>
 
 This page parameter seems like it's loading a file named german.html this could be something!\
 But before diving in, we should enumerate more and then follow each lead!
@@ -70,7 +70,7 @@ Next, we should look for any hidden directories and webpages, and ffuf is our wa
 └──╼ $ffuf -w /home/si7emed/Documents/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://unika.htb/FUZZ
 ```
 
-<figure><img src="../.gitbook/assets/image (18).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (18) (1).png" alt=""><figcaption></figcaption></figure>
 
 Nothing in here, sadly!
 
@@ -105,14 +105,14 @@ We now know that we should look if this website is indeed vulnerable to LFI and 
 
 For LFI, let's try the example given in the task 4:
 
-<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2) (1) (1).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
 
 This server is indeed vulnerable to LFI since it allowed us to access a file on the system without checking for our input! as already mentioned, this happens due to misuse of some PHP (in our case) function such as include(), include\_once(), require()..etc If the user's input is directly processed without proper checking, LFI and RFI vulnerabilities arise.
 
 Here, our first intuition, is getting clear-text credentials, finding an admin's password magically through reading a password file on the system since we an read anything from server, and more ideally, directly include the /root/root.txt. And that's what we're going to do us newbies , maybe it is possible ? We never know.\
 Through a google search we find this wordlist containing possible Windows paths. Upon trying A LOT of possible password location; ERRORS, ERRORS ERRORS EVERYWHERE.
 
-<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption><p>Hopeless LFI attempt.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption><p>Hopeless LFI attempt.</p></figcaption></figure>
 
 This is absolutely not the way to go, let's move on to trying RFI.
 
@@ -123,7 +123,7 @@ Intuitively, we would like to have a reverse shell through including a PHP shell
 Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...
 ```
 
-<figure><img src="../.gitbook/assets/image (4).png" alt=""><figcaption><p>A failed RFI vulnerability exploitation attempt.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (4) (1).png" alt=""><figcaption><p>A failed RFI vulnerability exploitation attempt.</p></figcaption></figure>
 
 We're stuck, officially, so let's return to the tasks to guide us!
 
@@ -168,7 +168,7 @@ We can also make it more efficient by executing the tool by writing only ''respo
 └──╼ $ sudo ln -s /usr/share/responder/Responder.py /usr/local/bin/responder
 ```
 
-<figure><img src="../.gitbook/assets/image (5).png" alt=""><figcaption><p>The tool is ready.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (5) (1).png" alt=""><figcaption><p>The tool is ready.</p></figcaption></figure>
 
 We can use this command to see if the SMB server hosting option is set :&#x20;
 
@@ -202,7 +202,7 @@ Let's run the SMB server:
 └──╼ $sudo responder -I tun0
 ```
 
-<figure><img src="../.gitbook/assets/image (7).png" alt=""><figcaption><p>NetNTLMv2 hash capture</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (7) (1).png" alt=""><figcaption><p>NetNTLMv2 hash capture</p></figcaption></figure>
 
 We indeed captured the administrator's password's NetNTLMv2 hash, now with not much information about the password policy for the Windows Target users we can only try to crack it with dictionary attacks using a tool like Hashcat or JohnTheRipper. I personally prefer Hashcat in these situations, so we'll do both because the task is about JohnTheRipper.
 
@@ -221,7 +221,7 @@ Analyzing 'Administrator::RESPONDER:8792230463254b5a:6AE869E9E29E832A9F506477350
 └──╼ $hashcat -m 5600 -a 0 hash.txt /usr/share/wordlists/rockyou.txt 
 ```
 
-<figure><img src="../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (8) (1).png" alt=""><figcaption></figcaption></figure>
 
 **Administrator:badminton**
 
@@ -229,7 +229,7 @@ Analyzing 'Administrator::RESPONDER:8792230463254b5a:6AE869E9E29E832A9F506477350
 
 Remember the full ports scan in Nmap we let run in the background? Here's what it gave us:
 
-<figure><img src="../.gitbook/assets/image (9).png" alt=""><figcaption><p>Win RM open Port.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (9) (1).png" alt=""><figcaption><p>Win RM open Port.</p></figcaption></figure>
 
 The 5985 port is for Win Rm which is a management protocol used by Windows operating systems to remotely manage and execute commands on a Windows-based machine. Exactly what we need!&#x20;
 
@@ -243,7 +243,7 @@ After proper installation from the [official repo](https://github.com/Hackplayer
 └──╼ $ evil-winrm  -i 10.129.36.242 -u Administrator -p 'badminton'
 ```
 
-<figure><img src="../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (10) (1).png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="success" %}
 <mark style="color:green;">We successfully accessed the machine as the Administrator!</mark>
@@ -251,5 +251,5 @@ After proper installation from the [official repo](https://github.com/Hackplayer
 
 After moving around a bit we found the flag in the following directory:
 
-<figure><img src="../.gitbook/assets/image (11).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (11) (1).png" alt=""><figcaption></figcaption></figure>
 

@@ -16,7 +16,7 @@ $nmap 10.10.10.3 -sV -sC -T4 -oA lame-def-nmap -Pn --disable-arp-ping
 # -Pn --disable-arp-ping: skip host discovery phase
 ```
 
-<figure><img src="../.gitbook/assets/image (19).png" alt=""><figcaption><p>SSH FTP SMB</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (19) (1).png" alt=""><figcaption><p>SSH FTP SMB</p></figcaption></figure>
 
 <img src="../.gitbook/assets/file.excalidraw (2).svg" alt="Illustration of the nmap output." class="gitbook-drawing">
 
@@ -24,7 +24,7 @@ $nmap 10.10.10.3 -sV -sC -T4 -oA lame-def-nmap -Pn --disable-arp-ping
 
 Usually, we choose one of the protocols and use all the footprinting techniques then move on to the next one. In this case, we're attacking FTP since we have a command to directly download all of available file (anonymous login).
 
-<figure><img src="../.gitbook/assets/image (20).png" alt=""><figcaption><p>Nothing.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (20) (1).png" alt=""><figcaption><p>Nothing.</p></figcaption></figure>
 
 FTP contains nothing even with ls -a it shows no hidden files so yes it provides nothing. But, upon checking for any public vulnerabilities, we ran into an interesting one:
 
@@ -40,7 +40,7 @@ As provided in [(139,445)SMB](https://app.gitbook.com/s/2x96g0dngcMbgd6cnWUj/enu
 
 We normally try out `rpcclient` but this time, since it did not provide anything useful and is too slow to respond, we jumped to the next command: `smbmap`
 
-<figure><img src="../.gitbook/assets/image (21).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (21) (1).png" alt=""><figcaption></figcaption></figure>
 
 The comment on the `tmp` share was interesting enough for me to try and access it even when it shows that i got no permissions to any of the shares. But as shown above i entered it anyways and after poking around a bit, nothing interesting.
 
@@ -52,7 +52,7 @@ SMB CVE
 
 Following the exploit found on GitHub we easily get a root shell.
 
-<figure><img src="../.gitbook/assets/image (22).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (22) (1).png" alt=""><figcaption></figcaption></figure>
 
 As  or the user flag, a simple find command would provide you with its location. try to to add another option to this command so that it prints out the user flag directly. `$find / -name user.txt -type f 2>/dev/null`
 

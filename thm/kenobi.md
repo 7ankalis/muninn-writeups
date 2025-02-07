@@ -116,7 +116,11 @@ Now we just connect to the target as kenobi using that key :smile:
 
 ```bash
 $cp tmp/id_rsa /home/<user>/thm/kenobi                                                                  
-$sudo chmod 600 id_rsa                                    
+$sudo chmod 600 id_rsa  
+
+#Do not forget to unmount the NFS  
+$sudo umount target-NFS    
+                              
 $ssh -i id_rsa kenobi@<target-ip>
 ```
 

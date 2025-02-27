@@ -48,7 +48,7 @@ Usually at this stage, we use [wappalyzer](https://www.wappalyzer.com/) to give 
 
 Now that we confirmed that it's a windows machine let's move on.
 
-After poking around the page, we stumbled upon something!  \
+After poking around the page, we szsfdasdftumbled upon something!  \
 In the process of changing the language of the page we have found a GET parameter named _**page**_
 
 <figure><img src="../.gitbook/assets/image (16) (1).png" alt=""><figcaption><p>A found 'page' parameter</p></figcaption></figure>

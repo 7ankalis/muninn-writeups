@@ -22,7 +22,9 @@ When facing windows machine, before I execute any Nmap scripts I like to list th
 $ nmap $target -vv -Pn -oN esctwo-ports
 ```
 
-Which indeed lists lots of open ports: !\[\[nmap ports.png]]
+Which indeed lists lots of open ports:&#x20;
+
+<figure><img src="../.gitbook/assets/nmap ports.png" alt=""><figcaption></figcaption></figure>
 
 1. **53/TCP** for DNS.
 2. **139/445/TCP** for **SMB.**
@@ -42,7 +44,11 @@ nmap $target -sC -sV -vv -Pn -oN esctwo-def-scan
 
 Before we proceed with our enumeration, we should add these entries to the `/etc/hosts` file:
 
-!\[\[nmap hosts.png]] So the `/etc/hosts` should look something like this: !\[\[hosts entry.png]]
+<figure><img src="../.gitbook/assets/nmap hosts.png" alt=""><figcaption></figcaption></figure>
+
+&#x20;So the `/etc/hosts` should look something like this:
+
+<figure><img src="../.gitbook/assets/hosts entry.png" alt=""><figcaption></figcaption></figure>
 
 ### LDAP
 
@@ -81,7 +87,7 @@ SMB is always my go-to target when I'm facing a Windows machine, since there's a
 nxc smb $target -u 'rose' -p 'KxEPkKe6R8su' --shares
 ```
 
-!\[\[rose shares.png]]
+<figure><img src="../.gitbook/assets/rose shares.png" alt=""><figcaption></figcaption></figure>
 
 #### Users Share
 
@@ -89,7 +95,13 @@ nxc smb $target -u 'rose' -p 'KxEPkKe6R8su' --shares
 smbclient -U 'rose' //$target/Users
 ```
 
-!\[\[smb as rose.png]] Going to the Default directory !\[\[users shares default dir.png]] Then I downloaded all the NTUSER.DAT files because according to [this](https://answers.microsoft.com/en-us/windows/forum/all/what-is-the-ntuserdat-file/fd3f2951-1691-4caf-ba1e-97864b1e2a57), _NTUSER.DAT_ is a windows generated file which contains the information of the user account settings and customizations. So that was enough for me to go and discover what could be obtained from these.
+<figure><img src="../.gitbook/assets/smb as rose.png" alt=""><figcaption></figcaption></figure>
+
+Going to the Default directory
+
+<figure><img src="../.gitbook/assets/users shares default dir.png" alt=""><figcaption></figcaption></figure>
+
+Then I downloaded all the NTUSER.DAT files because according to [this](https://answers.microsoft.com/en-us/windows/forum/all/what-is-the-ntuserdat-file/fd3f2951-1691-4caf-ba1e-97864b1e2a57), _NTUSER.DAT_ is a windows generated file which contains the information of the user account settings and customizations. So that was enough for me to go and discover what could be obtained from these.
 
 ```bash
 smb: \Default\> mget NTUSER.DA*
@@ -103,13 +115,31 @@ We'll keep those and move further before diving into anything more deeply. Rabbi
 smbclient -U 'rose' //$target/Accounting\ Department
 ```
 
-!\[\[Accoutning Dep.png]]This was the first rabbit hole for me. I kept searching withing the directories and literally overlooked some clear-text creds. So I did what? Went back to t hose `NTUSER.dat` files and went on and on with the analysis of those files. For like, hours? But anyway here is the shit I found before finding the good looking creds: !\[\[user mails xml.png]] And another user from the dev department maybe ? `Ruy` or whatsoever: !\[\[ruy user.png]] After And here are the creds in the sharedStrings xml file: !\[\[creds.png]] Then I proceeded further to brute force that smb service to get some valid creds before jumping into that MSSQL account:
+<figure><img src="../.gitbook/assets/Accoutning Dep.png" alt=""><figcaption></figcaption></figure>
+
+This was the first rabbit hole for me. I kept searching withing the directories and literally overlooked some clear-text creds. So I did what? Went back to t hose `NTUSER.dat` files and went on and on with the analysis of those files. For like, hours? But anyway here is the shit I found before finding the good looking creds:
+
+&#x20;!\[\[user mails xml.png]]&#x20;
+
+And another user from the dev department maybe ? `Ruy` or whatsoever:&#x20;
+
+!\[\[ruy user.png]]&#x20;
+
+After And here are the creds in the sharedStrings xml file:
+
+&#x20;!\[\[creds.png]]&#x20;
+
+Then I proceeded further to brute force that smb service to get some valid creds before jumping into that MSSQL account:
 
 ```bash
 nxc smb $target -u users.txt -p pass.txt
 ```
 
-And we got a hit for the user oscar: !\[\[nxc brute-force.png]] Which I thought was useless at this point. But we'll see how this is a a key thing too reconstruct the attack for the foothold.
+And we got a hit for the user oscar:&#x20;
+
+!\[\[nxc brute-force.png]]&#x20;
+
+Which I thought was useless at this point. But we'll see how this is a a key thing too reconstruct the attack for the foothold.
 
 ### MSSQL
 
@@ -165,7 +195,9 @@ A simple File System enumeration and we find the SQL2019 directory.
 
 !\[\[cmdshell dir.png]]
 
-A bit deeper inside the directory the file `C:\SQL2019\ExpressAdv_ENU\sql-Configuration.INI` contains clear text credentials we haven't run into yet: !\[\[sql\_svc password.png]]
+A bit deeper inside the directory the file `C:\SQL2019\ExpressAdv_ENU\sql-Configuration.INI` contains clear text credentials we haven't run into yet:&#x20;
+
+!\[\[sql\_svc password.png]]
 
 At this point I repeated exactly everything we did with the user rose, smb, evilwin-rm, LDAP again, MSRPC. And it led to nothing.
 
@@ -181,13 +213,19 @@ Given the valid credentials of oscar user which I thought were useless, we can i
  nxc smb 10.10.11.51 --rid-brute -u users.txt -p pass.txt                       
 ```
 
-Leading to this: !\[\[rid brurte.png]] So now collecting the names and performing a password spraying attack on them using:
+Leading to this:&#x20;
+
+!\[\[rid brurte.png]]&#x20;
+
+So now collecting the names and performing a password spraying attack on them using:
 
 ```bash
 nxc smb $target -u names.txt -p '<sql_svc-password>'
 ```
 
-!\[\[ryan creds.png]]Now evilwin-rm works and we get the user flag:
+!\[\[ryan creds.png]]
+
+Now evilwin-rm works and we get the user flag:
 
 ```bash
 evil-winrm -i 10.10.11.51 -u ryan -p 'password'
@@ -208,7 +246,11 @@ Once we have access with evilwin-rm, I tried the things I know to enumerate a Wi
 bloodhound-python -c All -u ryan -p <password> -d sequel.htb -ns 10.10.11.51
 ```
 
-This outputs a list of JSON files we will upload to Bloodhound. After some poking around in the reconstructed network, ownerships, privileges...etc I found this for the `ryan` user: !\[\[ca\_svc.png]] For the HACKER\* accounts I supposed they were some noise coming from other users on the network so forget about it. Let's focus on `CA_SVC` and that permission we have over it `WriteOwner` `CA` means certificate authority, the name in itself, the permissions we have in the context of `ryan` is enough for us to go this way. But it's an opportunity to know more about AD.
+This outputs a list of JSON files we will upload to Bloodhound. After some poking around in the reconstructed network, ownerships, privileges...etc I found this for the `ryan` user:&#x20;
+
+!\[\[ca\_svc.png]]&#x20;
+
+For the HACKER\* accounts I supposed they were some noise coming from other users on the network so forget about it. Let's focus on `CA_SVC` and that permission we have over it `WriteOwner` `CA` means certificate authority, the name in itself, the permissions we have in the context of `ryan` is enough for us to go this way. But it's an opportunity to know more about AD.
 
 ***
 
@@ -224,7 +266,9 @@ ADCS (Active Directory Certificate Services) is a Microsoft service that provide
 2. **Certificate Authorities (CA)**: The one that issues certificates based on user or computer information stored in AD.
 3. **Certificate Templates**: These are predefined configurations in ADCS that define what kind of certificates can be issued, how they are validated, and the scope of their use. While researching, the ones that really got my attention were:
 4. The templates as they are predefined configurations, some any misconfiguration is a plus for us.
-5. The CA which we, in the context of `ryan`, have `WriteOwner` permissions to. So intuitively we will aiming at owning that `CA_SVC` account and from there craft or dump certificates of high-privileged accounts. !\[\[bloodhound owenership.png]]
+5. The CA which we, in the context of `ryan`, have `WriteOwner` permissions to. So intuitively we will aiming at owning that `CA_SVC` account and from there craft or dump certificates of high-privileged accounts.&#x20;
+
+!\[\[bloodhound owenership.png]]
 
 Enough with theory, BUT a research is crucial to better understand this ADCS. Here are the resources I read, and I recommend you do too: [Shadow creds](https://www.thehacker.recipes/ad/movement/kerberos/shadow-credentials). [Granting rights](https://www.thehacker.recipes/ad/movement/dacl/grant-rights). [Certificate Template Access Control exploitation](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4).
 
@@ -242,7 +286,9 @@ Well we have WriteOwner, we could take ownership of this object and get Full Con
 bloodyAD --host '10.10.11.51' -d 'sequel.htb' -u 'ryan' -p 'password' set owner 'ca_svc' 'ryan'
 ```
 
-Which upon success prints out: !\[\[step 1 blooAD success.png]]
+Which upon success prints out:
+
+&#x20;!\[\[step 1 blooAD success.png]]
 
 #### Step 2: Grant Full Control rights
 
@@ -267,7 +313,9 @@ certipy-ad shadow auto -u 'ryan@sequel.htb' -p "password" -account 'ca_svc' -dc-
 
 #### Step 4: Finding vulnerable templates
 
-As easy as it is with automated tools, I chose to go through the templates manually to understand why they're marked vulnerable. Until I found this: !\[\[vuln template.png]]
+As easy as it is with automated tools, I chose to go through the templates manually to understand why they're marked vulnerable. Until I found this:&#x20;
+
+!\[\[vuln template.png]]
 
 The name is fishy, Allow Enroll for domain admins, entreprise admins and Cert publishers AKA us with the user ryan. So this is our target template. `DunderMifflinAuthentication`
 
@@ -300,4 +348,6 @@ certipy-ad auth -pfx administrator_10.pfx  -domain sequel.htb
 
 #### Step 8: PtH through evilwin-rm
 
-!\[\[Pasted image 20250227202902.png]] Such a tiring, rewarding and fun machine!
+!\[\[Pasted image 20250227202902.png]]
+
+&#x20;Such a tiring, rewarding and fun machine!

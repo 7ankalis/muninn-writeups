@@ -6,7 +6,11 @@ hidden: true
 
 ## TL;DR
 
-As it is my first ever AD machine, this was really painful but I learned A LOT, really a lot about AD, ADCS, Kerberos, ADCS Templates and bunch of other stuff. So the machine: It's all about enumeration at first, **clear-text** on SMB shares, you just have to dig good enough and find them in an **xlsx file**. Then combine the creds to form **user/pass wordlists** and get a successful hit with a user account that will help us enumerate the users present on the domain. Then **extract some other clear-text creds** within the **MSSQL client of the MSSQL service account** and combine it with the other wordlist to finally get a valid user account through a **password spraying attack** to get a foothold with **evilwin-rm** since, luckily, he has the needed rights to. For root, **Bloodhound** to map the AD environment and discover some interesting privileges and **permissions on the CA\_SVC**, then ==A LOT== of enumeration and manipulating the **CA templates, ownerships**, to finally combine all that to perform a **Shadow Credentials** attack and dump a NT hash of the administrator, and LUCKILY, no cracking, just perform a simple **Pass the Hash** attack with evilwin-rm.
+{% hint style="info" %}
+As it is <mark style="color:purple;">**my first ever AD machine**</mark>, this was really painful but I learned A LOT, really a lot about <mark style="color:purple;">**AD, ADCS, Kerberos, ADCS Templates**</mark> and bunch of other stuff. So the machine: It's all about enumeration at first, <mark style="color:red;">**clear-text**</mark> on SMB shares, you just have to dig good enough and find them in an <mark style="color:red;">**xlsx file**</mark>. Then combine the creds to form **user/pass wordlists** and get a successful hit with a user account that will help us enumerate the users present on the domain. Then <mark style="color:red;">**extract some other clear-text creds**</mark> within the **MSSQL client of the&#x20;**<mark style="color:red;">**MSSQL service account**</mark> and combine it with the other wordlist to finally get a valid user account through a **password spraying attack** to get a foothold with **evilwin-rm** since, luckily, he has the needed rights to. For root, **Bloodhound** to map the AD environment and discover some interesting privileges and <mark style="color:red;">**permissions**</mark>**&#x20;on the&#x20;**<mark style="color:red;">**CA\_SVC**</mark>, then <mark style="color:red;">**A LOT**</mark> of enumeration and manipulating the <mark style="color:red;">**CA templates**</mark>**, ownerships**, to finally combine all that to perform a <mark style="color:red;">**Shadow Credentials**</mark> attack and dump a NT hash of the administrator, and LUCKILY, no cracking, just perform a simple **Pass the Hash** attack with evilwin-rm.
+{% endhint %}
+
+
 
 ## Enumeration
 
@@ -19,7 +23,7 @@ As it is my first ever AD machine, this was really painful but I learned A LOT, 
 When facing windows machine, before I execute any Nmap scripts I like to list the ports first, to have an idea about the protocols and services in use to map it in our mind a bit so that the output of the scripts won't be confusing later or I don't miss out anything useful. So I run:
 
 ```bash
-$ nmap $target -vv -Pn -oN esctwo-ports
+nmap $target -vv -Pn -oN esctwo-ports
 ```
 
 Which indeed lists lots of open ports:&#x20;
@@ -119,15 +123,15 @@ smbclient -U 'rose' //$target/Accounting\ Department
 
 This was the first rabbit hole for me. I kept searching withing the directories and literally overlooked some clear-text creds. So I did what? Went back to t hose `NTUSER.dat` files and went on and on with the analysis of those files. For like, hours? But anyway here is the shit I found before finding the good looking creds:
 
-&#x20;!\[\[user mails xml.png]]&#x20;
+<figure><img src="../.gitbook/assets/user mails xml.png" alt=""><figcaption></figcaption></figure>
 
 And another user from the dev department maybe ? `Ruy` or whatsoever:&#x20;
 
-!\[\[ruy user.png]]&#x20;
+<figure><img src="../.gitbook/assets/ruy user.png" alt=""><figcaption></figcaption></figure>
 
 After And here are the creds in the sharedStrings xml file:
 
-&#x20;!\[\[creds.png]]&#x20;
+<figure><img src="../.gitbook/assets/creds.png" alt=""><figcaption></figcaption></figure>
 
 Then I proceeded further to brute force that smb service to get some valid creds before jumping into that MSSQL account:
 
@@ -137,7 +141,7 @@ nxc smb $target -u users.txt -p pass.txt
 
 And we got a hit for the user oscar:&#x20;
 
-!\[\[nxc brute-force.png]]&#x20;
+<figure><img src="../.gitbook/assets/nxc brute-force.png" alt=""><figcaption></figcaption></figure>
 
 Which I thought was useless at this point. But we'll see how this is a a key thing too reconstruct the attack for the foothold.
 
@@ -189,15 +193,17 @@ NULL
 
 So we can now execute commands through the MSSQL server
 
-!\[\[cmdshell test.png]]
+<figure><img src="../.gitbook/assets/cmdshell test.png" alt=""><figcaption></figcaption></figure>
 
 A simple File System enumeration and we find the SQL2019 directory.
 
-!\[\[cmdshell dir.png]]
+<figure><img src="../.gitbook/assets/cmdshell dir.png" alt=""><figcaption></figcaption></figure>
+
+
 
 A bit deeper inside the directory the file `C:\SQL2019\ExpressAdv_ENU\sql-Configuration.INI` contains clear text credentials we haven't run into yet:&#x20;
 
-!\[\[sql\_svc password.png]]
+<figure><img src="../.gitbook/assets/sql_svc password.png" alt=""><figcaption></figcaption></figure>
 
 At this point I repeated exactly everything we did with the user rose, smb, evilwin-rm, LDAP again, MSRPC. And it led to nothing.
 
@@ -207,7 +213,7 @@ At this point I repeated exactly everything we did with the user rose, smb, evil
 
 ## Foothold - User flag
 
-Given the valid credentials of oscar user which I thought were useless, we can indeed brute force the smb service with the valid creds we had from the beginning ==WITH THE PASSWORD WE JUST FOUND==. So after adding the new entries to the users and passwords files we run:
+Given the valid credentials of oscar user which I thought were useless, we can indeed brute force the smb service with the valid creds we had from the beginning <mark style="color:red;">**WITH THE PASSWORD WE JUST FOUND**</mark>. So after adding the new entries to the users and passwords files we run:
 
 ```bash
  nxc smb 10.10.11.51 --rid-brute -u users.txt -p pass.txt                       
@@ -215,7 +221,7 @@ Given the valid credentials of oscar user which I thought were useless, we can i
 
 Leading to this:&#x20;
 
-!\[\[rid brurte.png]]&#x20;
+<figure><img src="../.gitbook/assets/rid brurte.png" alt=""><figcaption></figcaption></figure>
 
 So now collecting the names and performing a password spraying attack on them using:
 
@@ -223,7 +229,7 @@ So now collecting the names and performing a password spraying attack on them us
 nxc smb $target -u names.txt -p '<sql_svc-password>'
 ```
 
-!\[\[ryan creds.png]]
+<figure><img src="../.gitbook/assets/ryan creds.png" alt=""><figcaption></figcaption></figure>
 
 Now evilwin-rm works and we get the user flag:
 
@@ -248,7 +254,7 @@ bloodhound-python -c All -u ryan -p <password> -d sequel.htb -ns 10.10.11.51
 
 This outputs a list of JSON files we will upload to Bloodhound. After some poking around in the reconstructed network, ownerships, privileges...etc I found this for the `ryan` user:&#x20;
 
-!\[\[ca\_svc.png]]&#x20;
+<figure><img src="../.gitbook/assets/ca_svc.png" alt=""><figcaption></figcaption></figure>
 
 For the HACKER\* accounts I supposed they were some noise coming from other users on the network so forget about it. Let's focus on `CA_SVC` and that permission we have over it `WriteOwner` `CA` means certificate authority, the name in itself, the permissions we have in the context of `ryan` is enough for us to go this way. But it's an opportunity to know more about AD.
 
@@ -268,7 +274,7 @@ ADCS (Active Directory Certificate Services) is a Microsoft service that provide
 4. The templates as they are predefined configurations, some any misconfiguration is a plus for us.
 5. The CA which we, in the context of `ryan`, have `WriteOwner` permissions to. So intuitively we will aiming at owning that `CA_SVC` account and from there craft or dump certificates of high-privileged accounts.&#x20;
 
-!\[\[bloodhound owenership.png]]
+<figure><img src="../.gitbook/assets/bloodhound owenership.png" alt=""><figcaption></figcaption></figure>
 
 Enough with theory, BUT a research is crucial to better understand this ADCS. Here are the resources I read, and I recommend you do too: [Shadow creds](https://www.thehacker.recipes/ad/movement/kerberos/shadow-credentials). [Granting rights](https://www.thehacker.recipes/ad/movement/dacl/grant-rights). [Certificate Template Access Control exploitation](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4).
 
@@ -288,7 +294,7 @@ bloodyAD --host '10.10.11.51' -d 'sequel.htb' -u 'ryan' -p 'password' set owner 
 
 Which upon success prints out:
 
-&#x20;!\[\[step 1 blooAD success.png]]
+<figure><img src="../.gitbook/assets/step 1 blooAD success.png" alt=""><figcaption></figcaption></figure>
 
 #### Step 2: Grant Full Control rights
 
@@ -303,21 +309,21 @@ impacket-dacledit  -action 'write' -rights 'FullControl' -principal 'ryan' -targ
 
 #### Step 3:
 
-We will be performing Shadow Credentials attack to get an NT hash of the ca\_svc account.
+We will be performing Shadow Credentials attack to get an <mark style="color:red;">**NT hash**</mark> of the **`ca_svc`** account.
 
 ```bash
 certipy-ad shadow auto -u 'ryan@sequel.htb' -p "password" -account 'ca_svc' -dc-ip '10.10.11.51'
 ```
 
-!\[\[shadow creds.png]]
+<figure><img src="../.gitbook/assets/shadow creds.png" alt=""><figcaption></figcaption></figure>
 
 #### Step 4: Finding vulnerable templates
 
 As easy as it is with automated tools, I chose to go through the templates manually to understand why they're marked vulnerable. Until I found this:&#x20;
 
-!\[\[vuln template.png]]
+<figure><img src="../.gitbook/assets/vuln template.png" alt=""><figcaption></figcaption></figure>
 
-The name is fishy, Allow Enroll for domain admins, entreprise admins and Cert publishers AKA us with the user ryan. So this is our target template. `DunderMifflinAuthentication`
+The name is fishy, Allow Enroll for domain admins, enterprise admins and Cert publishers AKA us with the user `ryan`. So this is our target template. `DunderMifflinAuthentication`
 
 #### Step 5: Updating the Template
 
@@ -336,7 +342,7 @@ certipy-ad req -u ca_svc -hashes 'hash' -ca sequel-DC01-CA -target sequel.htb -d
 [*] Saved certificate and private key to 'administrator_10.pfx'
 ```
 
-!\[\[Pasted image 20250227202705.png]]
+<figure><img src="../.gitbook/assets/Pasted image 20250227202705.png" alt=""><figcaption></figcaption></figure>
 
 #### Step 7: Dumping admin NT hash
 
@@ -344,10 +350,10 @@ certipy-ad req -u ca_svc -hashes 'hash' -ca sequel-DC01-CA -target sequel.htb -d
 certipy-ad auth -pfx administrator_10.pfx  -domain sequel.htb
 ```
 
-!\[\[Pasted image 20250227202737.png]]
+<figure><img src="../.gitbook/assets/Pasted image 20250227202737.png" alt=""><figcaption></figcaption></figure>
 
 #### Step 8: PtH through evilwin-rm
 
-!\[\[Pasted image 20250227202902.png]]
+<figure><img src="../.gitbook/assets/Pasted image 20250227202902.png" alt=""><figcaption></figcaption></figure>
 
 &#x20;Such a tiring, rewarding and fun machine!

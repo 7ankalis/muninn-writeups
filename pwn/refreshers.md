@@ -2,6 +2,7 @@
 description: >-
   All of the content below is specific to x86-64  (also known as AMD64 or Intel
   64) unless shown otherwise.
+hidden: true
 ---
 
 # Refreshers

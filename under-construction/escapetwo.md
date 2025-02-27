@@ -89,7 +89,7 @@ nxc smb $target -u 'rose' -p 'KxEPkKe6R8su' --shares
 smbclient -U 'rose' //$target/Users
 ```
 
-!\[\[smb as rose.png]]Going to the Default directory !\[\[users shares default dir.png]] Then I downloaded all the NTUSER.DAT files because according to [this](https://answers.microsoft.com/en-us/windows/forum/all/what-is-the-ntuserdat-file/fd3f2951-1691-4caf-ba1e-97864b1e2a57), _NTUSER.DAT_ is a windows generated file which contains the information of the user account settings and customizations. So that was enough for me to go and discover what could be obtained from these.
+!\[\[smb as rose.png]] Going to the Default directory !\[\[users shares default dir.png]] Then I downloaded all the NTUSER.DAT files because according to [this](https://answers.microsoft.com/en-us/windows/forum/all/what-is-the-ntuserdat-file/fd3f2951-1691-4caf-ba1e-97864b1e2a57), _NTUSER.DAT_ is a windows generated file which contains the information of the user account settings and customizations. So that was enough for me to go and discover what could be obtained from these.
 
 ```bash
 smb: \Default\> mget NTUSER.DA*

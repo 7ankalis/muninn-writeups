@@ -7,10 +7,13 @@ hidden: true
 ## TL;DR
 
 {% hint style="info" %}
-As it is <mark style="color:purple;">**my first ever AD machine**</mark>, this was really painful but I learned A LOT, really a lot about <mark style="color:purple;">**AD, ADCS, Kerberos, ADCS Templates**</mark> and bunch of other stuff. So the machine: It's all about enumeration at first, <mark style="color:red;">**clear-text**</mark> on SMB shares, you just have to dig good enough and find them in an <mark style="color:red;">**xlsx file**</mark>. Then combine the creds to form **user/pass wordlists** and get a successful hit with a user account that will help us enumerate the users present on the domain. Then <mark style="color:red;">**extract some other clear-text creds**</mark> within the **MSSQL client of the&#x20;**<mark style="color:red;">**MSSQL service account**</mark> and combine it with the other wordlist to finally get a valid user account through a **password spraying attack** to get a foothold with **evilwin-rm** since, luckily, he has the needed rights to. For root, **Bloodhound** to map the AD environment and discover some interesting privileges and <mark style="color:red;">**permissions**</mark>**&#x20;on the&#x20;**<mark style="color:red;">**CA\_SVC**</mark>, then <mark style="color:red;">**A LOT**</mark> of enumeration and manipulating the <mark style="color:red;">**CA templates**</mark>**, ownerships**, to finally combine all that to perform a <mark style="color:red;">**Shadow Credentials**</mark> attack and dump a NT hash of the administrator, and LUCKILY, no cracking, just perform a simple **Pass the Hash** attack with evilwin-rm.
+As it is <mark style="color:purple;">**my first ever AD machine**</mark>, this was really interesting, painful, rewarding.
+
+And I learned A LOT, really a lot about <mark style="color:purple;">**AD, ADCS, Kerberos, ADCS Templates**</mark> and bunch of other stuff. It is just so confusing how much info can a simple user on AD retrieve tons of information with the classic privileges.
+
+* So the machine: It's all about enumeration at first, <mark style="color:red;">**clear-text**</mark> on SMB shares, you just have to dig good enough and find them in an <mark style="color:red;">**xlsx file**</mark>. Then combine the creds to form **user/pass wordlists** and get a successful hit with a user account that will help us enumerate the users present on the domain. Then <mark style="color:red;">**extract some other clear-text creds**</mark> within the **MSSQL client of the&#x20;**<mark style="color:red;">**MSSQL service account**</mark> and combine it with the other wordlist to finally get a valid user account through a **password spraying attack** to get a foothold with **evilwin-rm** since, luckily, he has the needed rights to.&#x20;
+* For root, **Bloodhound** to map the AD environment and discover some interesting privileges and <mark style="color:red;">**permissions**</mark>**&#x20;on the&#x20;**<mark style="color:red;">**CA\_SVC**</mark>, then <mark style="color:red;">**A LOT**</mark> of enumeration and manipulating the <mark style="color:red;">**CA templates**</mark>**, ownerships**, to finally combine all that to perform a <mark style="color:red;">**Shadow Credentials**</mark> attack and <mark style="color:red;">**dump a NT hash**</mark> of the administrator, and LUCKILY, no cracking, just perform a simple **Pass the Hash** attack with evilwin-rm.
 {% endhint %}
-
-
 
 ## Enumeration
 
@@ -28,7 +31,7 @@ nmap $target -vv -Pn -oN esctwo-ports
 
 Which indeed lists lots of open ports:&#x20;
 
-<figure><img src="../.gitbook/assets/nmap ports.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/nmap ports.png" alt=""><figcaption><p>Nmap ports scan</p></figcaption></figure>
 
 1. **53/TCP** for DNS.
 2. **139/445/TCP** for **SMB.**
@@ -48,11 +51,11 @@ nmap $target -sC -sV -vv -Pn -oN esctwo-def-scan
 
 Before we proceed with our enumeration, we should add these entries to the `/etc/hosts` file:
 
-<figure><img src="../.gitbook/assets/nmap hosts.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/nmap hosts.png" alt=""><figcaption><p>Domain name, NS, FQDN</p></figcaption></figure>
 
 &#x20;So the `/etc/hosts` should look something like this:
 
-<figure><img src="../.gitbook/assets/hosts entry.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/hosts entry.png" alt=""><figcaption><p>/etc/hosts entries</p></figcaption></figure>
 
 ### LDAP
 
@@ -73,7 +76,7 @@ sAMAccountName: rose
 sAMAccountName: ca_svc
 ```
 
-This is so important, these user/service accounts are the ones we will be targeting later in privesc and for the foothold.
+This is so important, these user/service accounts are the ones we will be targeting later in PrivEsc and for the foothold.
 
 #### LDAP Groups
 
@@ -91,7 +94,7 @@ SMB is always my go-to target when I'm facing a Windows machine, since there's a
 nxc smb $target -u 'rose' -p 'KxEPkKe6R8su' --shares
 ```
 
-<figure><img src="../.gitbook/assets/rose shares.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/rose shares.png" alt=""><figcaption><p>SMB Shares</p></figcaption></figure>
 
 #### Users Share
 
@@ -114,6 +117,8 @@ smb: \Default\> mget NTUSER.DA*
 We'll keep those and move further before diving into anything more deeply. Rabbit holes ahead.
 
 #### Accounting Department Share
+
+I didn't notice the accounting department at first, the name matched the columns of the output perfectly.&#x20;
 
 ```bash
 smbclient -U 'rose' //$target/Accounting\ Department
@@ -246,7 +251,9 @@ evil-winrm -i 10.10.11.51 -u ryan -p 'password'
 Once we have access with evilwin-rm, I tried the things I know to enumerate a Windows machine, SAM database, LSASS, hives...etc nothing worked. So after searching A LOT, with no knowledge in AD, Bloodhound came in. Which is a tool that identifies attack paths and relationships in an AD environment and builds up an attack vector maybe? The description alone was interesting enough for me to get it asap. So let's get it to work using [this](https://www.kali.org/tools/bloodhound/) guide. Once it is set, we have two ways to do this:
 
 1. We can transfer a binary known as `SharpHound.exe` onto the target, execute it, then transfer the .`json` files back to our kali box and then upload them into `bloodhound`.
-2. We can run `bloodhound-python` directly from our kali box, given a set of valid credentials against the AD environment, and then upload the `.json` files into `bloodhound`. This option is more straight forward as it removes the need to transfer `SharpHound.exe` onto the target. For now, tired enough, I'll just use bloodhound-python.
+2. We can run `bloodhound-python` directly from our kali box, given a set of valid credentials against the AD environment, and then upload the `.json` files into `bloodhound`. This option is more straight forward as it removes the need to transfer `SharpHound.exe` onto the target.&#x20;
+
+For now, tired enough, I'll just use bloodhound-python :smile:
 
 ```bash
 bloodhound-python -c All -u ryan -p <password> -d sequel.htb -ns 10.10.11.51
@@ -254,7 +261,7 @@ bloodhound-python -c All -u ryan -p <password> -d sequel.htb -ns 10.10.11.51
 
 This outputs a list of JSON files we will upload to Bloodhound. After some poking around in the reconstructed network, ownerships, privileges...etc I found this for the `ryan` user:&#x20;
 
-<figure><img src="../.gitbook/assets/ca_svc.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/ca_svc.png" alt=""><figcaption><p>ryan on bloodhound</p></figcaption></figure>
 
 For the HACKER\* accounts I supposed they were some noise coming from other users on the network so forget about it. Let's focus on `CA_SVC` and that permission we have over it `WriteOwner` `CA` means certificate authority, the name in itself, the permissions we have in the context of `ryan` is enough for us to go this way. But it's an opportunity to know more about AD.
 
@@ -276,7 +283,13 @@ ADCS (Active Directory Certificate Services) is a Microsoft service that provide
 
 <figure><img src="../.gitbook/assets/bloodhound owenership.png" alt=""><figcaption></figcaption></figure>
 
-Enough with theory, BUT a research is crucial to better understand this ADCS. Here are the resources I read, and I recommend you do too: [Shadow creds](https://www.thehacker.recipes/ad/movement/kerberos/shadow-credentials). [Granting rights](https://www.thehacker.recipes/ad/movement/dacl/grant-rights). [Certificate Template Access Control exploitation](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4).
+Enough with theory, BUT a research is crucial to better understand this ADCS. Here are the resources I read, and I recommend you do too:&#x20;
+
+[Shadow creds](https://www.thehacker.recipes/ad/movement/kerberos/shadow-credentials).
+
+&#x20;[Granting rights](https://www.thehacker.recipes/ad/movement/dacl/grant-rights).&#x20;
+
+[Certificate Template Access Control exploitation](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4).
 
 ***
 

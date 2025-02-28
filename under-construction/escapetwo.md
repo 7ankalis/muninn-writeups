@@ -1,7 +1,3 @@
----
-hidden: true
----
-
 # EscapeTwo
 
 ## TL;DR
@@ -242,6 +238,10 @@ Now evilwin-rm works and we get the user flag:
 evil-winrm -i 10.10.11.51 -u ryan -p 'password'
 ```
 
+{% hint style="success" %}
+U<mark style="color:green;">**ser pwned.**</mark>
+{% endhint %}
+
 ***
 
 ***
@@ -369,4 +369,6 @@ certipy-ad auth -pfx administrator_10.pfx  -domain sequel.htb
 
 <figure><img src="../.gitbook/assets/Pasted image 20250227202902.png" alt=""><figcaption></figcaption></figure>
 
-&#x20;Such a tiring, rewarding and fun machine!
+{% hint style="success" %}
+&#x20;<mark style="color:green;">**Such a tiring, rewarding and fun machine! Rooted**</mark>
+{% endhint %}

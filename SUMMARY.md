@@ -10,7 +10,6 @@
 
 * [EscapeTwo](under-construction/escapetwo.md)
 * [Lame](under-construction/lame.md)
-* [Page](under-construction/page.md)
 * [Cap](under-construction/cap.md)
 * [Sightless](under-construction/sightless.md)
 * [PermX](under-construction/permx.md)

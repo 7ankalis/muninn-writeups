@@ -1,5 +1,7 @@
 # EscapeTwo
 
+<figure><img src="../.gitbook/assets/image (128).png" alt=""><figcaption></figcaption></figure>
+
 ## TL;DR
 
 {% hint style="info" %}

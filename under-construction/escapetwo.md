@@ -55,6 +55,10 @@ Before we proceed with our enumeration, we should add these entries to the `/etc
 
 <figure><img src="../.gitbook/assets/hosts entry.png" alt=""><figcaption><p>/etc/hosts entries</p></figcaption></figure>
 
+{% hint style="danger" %}
+You should note that adding the CA in here was a mistake I didn't notice only after a while. It is not a FQDN and not resolvable so adding it does nothing.
+{% endhint %}
+
 ### LDAP
 
 #### LDAP users

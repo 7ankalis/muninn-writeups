@@ -14,7 +14,7 @@ Then for PrivEsc we will be redirecting the curl command in a binary with SUID b
 $nmap <target-ip> -sV -sC -T4 -Pn -vv -oN kenobi-def-scan
 ```
 
-<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 I often jump to enumerating the FTP portal, but it lead to nothing so i went on to SMB.
 
@@ -26,7 +26,7 @@ $nmap <target-ip> -p 139,445 --script=smb-enum-shares.nse,smb-enum-users.nse -T4
 
 Which leads to 3 SMB shares available:
 
-<figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption></figcaption></figure>
 
 Which is also confirmed with :&#x20;
 
@@ -34,7 +34,7 @@ Which is also confirmed with :&#x20;
 $smbclient -L <target-ip>
 ```
 
-<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
 
 So we try to connect to it:&#x20;
 
@@ -42,7 +42,7 @@ So we try to connect to it:&#x20;
 $smbclient //<target-ip>/anonymous
 ```
 
-<figure><img src="../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (5) (1).png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="warning" %}
 After much struggle, it turns out that I had a problem with my internet connection. Upon changing my router everything went flawless and the download was successful.

@@ -105,14 +105,14 @@ We now know that we should look if this website is indeed vulnerable to LFI and 
 
 For LFI, let's try the example given in the task 4:
 
-<figure><img src="../.gitbook/assets/image (2) (1) (1).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2) (1) (1) (1).png" alt=""><figcaption><p>LFI Detected.</p></figcaption></figure>
 
 This server is indeed vulnerable to LFI since it allowed us to access a file on the system without checking for our input! as already mentioned, this happens due to misuse of some PHP (in our case) function such as include(), include\_once(), require()..etc If the user's input is directly processed without proper checking, LFI and RFI vulnerabilities arise.
 
 Here, our first intuition, is getting clear-text credentials, finding an admin's password magically through reading a password file on the system since we an read anything from server, and more ideally, directly include the /root/root.txt. And that's what we're going to do us newbies , maybe it is possible ? We never know.\
 Through a google search we find this wordlist containing possible Windows paths. Upon trying A LOT of possible password location; ERRORS, ERRORS ERRORS EVERYWHERE.
 
-<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption><p>Hopeless LFI attempt.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3) (1) (1).png" alt=""><figcaption><p>Hopeless LFI attempt.</p></figcaption></figure>
 
 This is absolutely not the way to go, let's move on to trying RFI.
 
@@ -123,7 +123,7 @@ Intuitively, we would like to have a reverse shell through including a PHP shell
 Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...
 ```
 
-<figure><img src="../.gitbook/assets/image (4) (1).png" alt=""><figcaption><p>A failed RFI vulnerability exploitation attempt.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (4) (1) (1).png" alt=""><figcaption><p>A failed RFI vulnerability exploitation attempt.</p></figcaption></figure>
 
 We're stuck, officially, so let's return to the tasks to guide us!
 
@@ -168,7 +168,7 @@ We can also make it more efficient by executing the tool by writing only ''respo
 └──╼ $ sudo ln -s /usr/share/responder/Responder.py /usr/local/bin/responder
 ```
 
-<figure><img src="../.gitbook/assets/image (5) (1).png" alt=""><figcaption><p>The tool is ready.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (5) (1) (1).png" alt=""><figcaption><p>The tool is ready.</p></figcaption></figure>
 
 We can use this command to see if the SMB server hosting option is set :&#x20;
 

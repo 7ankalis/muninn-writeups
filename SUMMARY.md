@@ -6,6 +6,10 @@
 
 * [Responder](htb-starting-point/responder.md)
 
+## Cat The Flag
+
+* [Malla routine](cat-the-flag/malla-routine.md)
+
 ## 😅 Under Construction
 
 * [EscapeTwo](under-construction/escapetwo.md)
